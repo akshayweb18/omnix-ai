@@ -6,11 +6,22 @@ import ChatList from "./ChatList";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 import { useChat } from "@/hooks/useChat";
-
+import { useSpeech } from "@/hooks/useSpeech";
 
 export default function ChatLayout() {
   const { messages, sendMessage, loading } = useChat();
+  const { speak } = useSpeech();
   const bottomRef = useRef(null);
+
+ useEffect(() => {
+  if (!messages.length) return;
+
+  const lastMessage = messages[messages.length - 1];
+
+  if (lastMessage.role === "assistant") {
+    speak(lastMessage.content);
+  }
+}, [messages]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -19,7 +30,7 @@ export default function ChatLayout() {
 
   return (
     <div className="relative flex flex-col h-screen overflow-hidden bg-[#f7f7f8]">
-     
+      
       {/* Ambient Background Glow */}
       <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-r from-blue-200/30 via-purple-200/30 to-pink-200/30 blur-3xl pointer-events-none" />
 

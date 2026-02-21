@@ -15,6 +15,23 @@ export function useChat() {
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
 
+    // --- Custom Creator Response ---
+    const lowerText = text.toLowerCase().trim();
+    if (
+      lowerText.includes("who made you") ||
+      lowerText.includes("who developed you") ||
+      lowerText.includes("your creator")
+    ) {
+      const botMessage = {
+        role: "assistant",
+        content: "I was made by Akshay Chaudhari.",
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      setLoading(false);
+      return; // skip API call
+    }
+
+    // --- Normal API call ---
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -32,11 +49,8 @@ export function useChat() {
       };
 
       setMessages((prev) => [...prev, botMessage]);
-
     } catch (error) {
       console.error("Chat error:", error);
-
-      // Gemini-like subtle fallback message
       setMessages((prev) => [
         ...prev,
         {
