@@ -17,6 +17,7 @@ export function useSpeech() {
     window.speechSynthesis.onvoiceschanged = loadVoices;
 
     return () => {
+      window.speechSynthesis.cancel();
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, []);

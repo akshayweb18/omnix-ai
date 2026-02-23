@@ -46,12 +46,12 @@ export default function ChatMessage({ message }) {
           {/* Bubble */}
           <div
             className={`
-              px-5 py-3 rounded-2xl text-[15px] leading-relaxed
+              px-5 py-3 rounded-lg text-[15px] leading-relaxed
               transition-all duration-300
               ${
                 isUser
-                  ? "bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900"
-                  : "bg-white/70 backdrop-blur-md border border-gray-200 text-gray-800 shadow-sm"
+                  ? "bg-blue-500 text-white rounded-2xl"
+                  : "bg-white border border-gray-200 text-gray-900 shadow-sm"
               }
             `}
           >

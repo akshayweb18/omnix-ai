@@ -13,8 +13,27 @@ export default function ChatInput({ onSend }) {
 
   const handleSend = () => {
     if (!text.trim()) return;
+    // Stop any ongoing speech when sending new message
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.cancel();
+    }
     onSend(text);
     setText("");
+  };
+
+  const handleInputClick = () => {
+    // Stop any ongoing speech when user clicks input
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setText(e.target.value);
+    // Stop any ongoing speech when user starts typing
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.cancel();
+    }
   };
 
   const handleMicClick = () => {
@@ -39,7 +58,8 @@ export default function ChatInput({ onSend }) {
           {/* Input */}
           <input
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={handleInputChange}
+            onClick={handleInputClick}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Ask Omnix..."
             className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"

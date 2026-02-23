@@ -21,7 +21,13 @@ export default function ChatLayout() {
   if (lastMessage.role === "assistant") {
     speak(lastMessage.content);
   }
-}, [messages]);
+
+  return () => {
+    if (typeof window !== "undefined") {
+      window.speechSynthesis.cancel();
+    }
+  };
+}, [messages, speak]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -29,21 +35,14 @@ export default function ChatLayout() {
   }, [messages, loading]);
 
   return (
-    <div className="relative flex flex-col h-screen overflow-hidden bg-[#f7f7f8]">
-      
-      {/* Ambient Background Glow */}
-      <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-r from-blue-200/30 via-purple-200/30 to-pink-200/30 blur-3xl pointer-events-none" />
+    <div className="relative flex flex-col h-screen overflow-hidden bg-white">
 
       {/* Header */}
       <ChatHeader />
 
       {/* Chat Area */}
       <div className="relative flex-1 overflow-y-auto">
-        
-        {/* Fade Top Gradient */}
-        <div className="pointer-events-none absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-[#f7f7f8] to-transparent z-10" />
-
-        <div className="max-w-3xl mx-auto w-full px-4 py-10 space-y-8">
+        <div className="max-w-3xl mx-auto w-full px-4 py-8 space-y-6">
           
           {/* Empty State */}
           {messages.length === 0 && !loading && (
@@ -86,11 +85,7 @@ export default function ChatLayout() {
           {loading && <TypingIndicator />}
 
           <div ref={bottomRef} />
-
         </div>
-
-        {/* Fade Bottom Gradient */}
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#f7f7f8] to-transparent" />
       </div>
 
       {/* Input */}
