@@ -21,32 +21,59 @@ export function useSpeech() {
     };
   }, []);
 
-  // Detect language based on unicode ranges
+  // 🌍 Language Detection
   const detectLanguage = (text) => {
-    if (/[\u0900-\u097F]/.test(text)) return "hi-IN"; // Hindi
-    if (/[\u0B80-\u0BFF]/.test(text)) return "ta-IN"; // Tamil
-    if (/[\u0C00-\u0C7F]/.test(text)) return "te-IN"; // Telugu
-    if (/[\u0A00-\u0A7F]/.test(text)) return "gu-IN"; // Gujarati
-    if (/[\u0C80-\u0CFF]/.test(text)) return "kn-IN"; // Kannada
-    if (/[\u0D00-\u0D7F]/.test(text)) return "ml-IN"; // Malayalam
-    return "en-IN"; // Default English
+    if (/[\u0900-\u097F]/.test(text)) return "hi-IN";
+    if (/[\u0B80-\u0BFF]/.test(text)) return "ta-IN";
+    if (/[\u0C00-\u0C7F]/.test(text)) return "te-IN";
+    if (/[\u0A00-\u0A7F]/.test(text)) return "gu-IN";
+    if (/[\u0C80-\u0CFF]/.test(text)) return "kn-IN";
+    if (/[\u0D00-\u0D7F]/.test(text)) return "ml-IN";
+    return "en-IN";
   };
 
+  // 🧹 Clean Text (removes # . markdown emoji etc)
+  const cleanTextForSpeech = (text) => {
+    if (!text) return "";
+
+    return text
+      .replace(/[#*_~`>]/g, "") // remove markdown
+      .replace(/https?:\/\/\S+/g, "") // remove URLs
+      .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+      .replace(/\.{2,}/g, ".")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  // 👩 Best Female Voice Selector
   const getBestFemaleVoice = (lang) => {
-    const femaleVoice =
-      voices.find(
-        (v) =>
-          v.lang.includes(lang.split("-")[0]) &&
-          /female|zira|google|wavenet/i.test(v.name)
-      ) ||
-      voices.find((v) => v.lang.includes(lang.split("-")[0])) ||
-      voices[0];
+    const langCode = lang.split("-")[0];
 
-    return femaleVoice;
+    const googleVoice = voices.find(
+      (v) =>
+        v.lang.startsWith(langCode) &&
+        /google/i.test(v.name)
+    );
+
+    if (googleVoice) return googleVoice;
+
+    const femaleVoice = voices.find(
+      (v) =>
+        v.lang.startsWith(langCode) &&
+        /female|zira|heera|kalpana|priya/i.test(v.name)
+    );
+
+    if (femaleVoice) return femaleVoice;
+
+    return voices.find((v) => v.lang.startsWith(langCode)) || voices[0];
   };
 
+  // 🔊 Speak Function
   const speak = useCallback(
-    (text, forcedLang = null) => {
+    (rawText, forcedLang = null) => {
+      if (!rawText) return;
+
+      const text = cleanTextForSpeech(rawText);
       if (!text) return;
 
       window.speechSynthesis.cancel();
@@ -60,8 +87,8 @@ export function useSpeech() {
         utterance.lang = voice.lang;
       }
 
-      utterance.rate = 0.9;
-      utterance.pitch = 1.2;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.15;
       utterance.volume = 1;
 
       utterance.onstart = () => setSpeaking(true);
@@ -72,5 +99,5 @@ export function useSpeech() {
     [voices]
   );
 
-  return { speak, detectLanguage, speaking };
+  return { speak, speaking };
 }

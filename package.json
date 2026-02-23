@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.29",
+    "@google-cloud/text-to-speech": "^6.4.0",
     "@google/generative-ai": "^0.24.1",
     "ai": "^6.0.90",
     "axios": "^1.13.5",

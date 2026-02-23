@@ -22,23 +22,20 @@ export default function useVoice(onResult) {
 
     recognition.continuous = true;
     recognition.interimResults = false;
-    recognition.lang = "en-US";
+    recognition.lang = "en-IN";
 
-    recognition.onstart = () => {
-      setListening(true);
-    };
+    recognition.onstart = () => setListening(true);
 
     recognition.onresult = (event) => {
       const transcript =
         event.results[event.results.length - 1][0].transcript;
 
       if (transcript && onResult) {
-        onResult(transcript);
+        onResult(transcript.trim());
       }
     };
 
     recognition.onend = () => {
-      // Restart ONLY if not manually stopped
       if (!manuallyStoppedRef.current) {
         try {
           recognition.start();
@@ -48,8 +45,7 @@ export default function useVoice(onResult) {
       }
     };
 
-    recognition.onerror = (e) => {
-      console.warn("Speech recognition error:", e?.error || "unknown");
+    recognition.onerror = () => {
       setListening(false);
     };
 
