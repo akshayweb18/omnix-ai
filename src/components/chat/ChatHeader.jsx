@@ -2,7 +2,7 @@ export default function ChatHeader() {
   return (
     <div className="sticky top-0 z-50 
       bg-white
-      shadow-sm border-b-amber-50">
+      shadow-sm">
 
       <div className="h-16 flex items-center justify-between px-6 max-w-6xl mx-auto">
 
@@ -42,7 +42,7 @@ export default function ChatHeader() {
         <div className="flex items-center gap-4">
 
           {/* Online Status */}
-          <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 ">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
