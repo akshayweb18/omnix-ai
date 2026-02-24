@@ -1,9 +1,7 @@
 export default function ChatHeader() {
   return (
     <div className="sticky top-0 z-50 
-      backdrop-blur-xl 
-      bg-white/60 dark:bg-black/40
-      border-b border-gray-200/60 dark:border-gray-800
+      bg-white
       shadow-sm">
 
       <div className="h-16 flex items-center justify-between px-6 max-w-6xl mx-auto">
