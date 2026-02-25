@@ -41,7 +41,7 @@ export default function ChatHeader() {
             <button
               onClick={() => setOpen(!open)}
               className="w-10 h-10 rounded-xl
-                bg-gray-100/70 dark:bg-gray-800/70
+                bg-gray-100/70 
                 hover:bg-gray-200 dark:hover:bg-gray-700
                 transition-all duration-300
                 flex items-center justify-center
