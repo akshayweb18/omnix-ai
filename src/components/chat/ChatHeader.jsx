@@ -42,7 +42,7 @@ export default function ChatHeader() {
               onClick={() => setOpen(!open)}
               className="w-10 h-10 rounded-xl
                 bg-grey-500
-               relative right-[9px]
+                
                 transition-all duration-300
                 flex items-center justify-center
                 text-gray-600 dark:text-gray-300
@@ -59,7 +59,7 @@ export default function ChatHeader() {
                     resetChat(); // 🔥 This clears old messages
                     setOpen(false);
                   }}
-                  className="w-full text-left text-black px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition"
                 >
                   ➕ New Chat
                 </button>
