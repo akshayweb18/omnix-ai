@@ -53,7 +53,7 @@ export default function ChatHeader() {
             </button>
 
             {open && (
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-xl p-2 border border-gray-200">
+              <div className="absolute right-0 mt-2 w-40 text-black bg-white shadow-lg rounded-xl p-2 border border-gray-200">
                 <button
                   onClick={() => {
                     resetChat(); // 🔥 This clears old messages
