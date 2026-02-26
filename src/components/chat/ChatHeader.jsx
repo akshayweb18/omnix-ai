@@ -59,7 +59,7 @@ export default function ChatHeader() {
                     resetChat(); // 🔥 This clears old messages
                     setOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+                  className="w-full text-left px-3 py-2 text-black rounded-lg hover:bg-gray-100 transition"
                 >
                   ➕ New Chat
                 </button>
