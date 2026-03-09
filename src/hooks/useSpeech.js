@@ -1,104 +1,105 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export function useSpeech() {
   const [voices, setVoices] = useState([]);
   const [speaking, setSpeaking] = useState(false);
+  const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
+  const utteranceRef = useRef(null);
 
+  // Load and filter high-quality voices
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!synth) return;
 
     const loadVoices = () => {
-      const allVoices = window.speechSynthesis.getVoices();
+      const allVoices = synth.getVoices();
       setVoices(allVoices);
     };
 
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    synth.onvoiceschanged = loadVoices;
 
-    return () => {
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.onvoiceschanged = null;
-    };
-  }, []);
+    return () => synth.cancel();
+  }, [synth]);
 
-  // 🌍 Language Detection
+  // 🌍 Accurate Language & Script Detection
   const detectLanguage = (text) => {
-    if (/[\u0900-\u097F]/.test(text)) return "hi-IN";
-    if (/[\u0B80-\u0BFF]/.test(text)) return "ta-IN";
-    if (/[\u0C00-\u0C7F]/.test(text)) return "te-IN";
-    if (/[\u0A00-\u0A7F]/.test(text)) return "gu-IN";
-    if (/[\u0C80-\u0CFF]/.test(text)) return "kn-IN";
-    if (/[\u0D00-\u0D7F]/.test(text)) return "ml-IN";
+    if (/[\u0900-\u097F]/.test(text)) return "hi-IN"; // Hindi
+    if (/[\u0B80-\u0BFF]/.test(text)) return "ta-IN"; // Tamil
+    if (/[\u0C00-\u0C7F]/.test(text)) return "te-IN"; // Telugu
+    if (/[\u0980-\u09FF]/.test(text)) return "bn-IN"; // Bengali
     return "en-IN";
   };
 
-  // 🧹 Clean Text (removes # . markdown emoji etc)
+  // 🧹 Professional Text Sanitization
   const cleanTextForSpeech = (text) => {
     if (!text) return "";
-
     return text
-      .replace(/[#*_~`>]/g, "") // remove markdown
-      .replace(/https?:\/\/\S+/g, "") // remove URLs
+      .replace(/[#*_~`>]/g, "") // Remove Markdown
+      .replace(/https?:\/\/\S+/g, "") // Remove URLs
       .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
-      .replace(/\.{2,}/g, ".")
-      .replace(/\s+/g, " ")
+      .replace(/\s+/g, " ") // Normalize whitespace
       .trim();
   };
 
-  // 👩 Best Female Voice Selector
-  const getBestFemaleVoice = (lang) => {
+  // 👩 Best Neural/Natural Voice Selector
+  const getProfessionalVoice = (lang) => {
     const langCode = lang.split("-")[0];
+    const available = voices.filter((v) => v.lang.startsWith(langCode));
 
-    const googleVoice = voices.find(
-      (v) =>
-        v.lang.startsWith(langCode) &&
-        /google/i.test(v.name)
+    // Priority: 1. Google/Neural Voices, 2. Premium Voices, 3. Standard Female
+    return (
+      available.find((v) => v.name.includes("Google") && v.name.includes("Female")) ||
+      available.find((v) => v.name.includes("Natural") || v.name.includes("Premium")) ||
+      available.find((v) => /Heera|Kalpana|Priya|Neerja/i.test(v.name)) ||
+      available[0]
     );
-
-    if (googleVoice) return googleVoice;
-
-    const femaleVoice = voices.find(
-      (v) =>
-        v.lang.startsWith(langCode) &&
-        /female|zira|heera|kalpana|priya/i.test(v.name)
-    );
-
-    if (femaleVoice) return femaleVoice;
-
-    return voices.find((v) => v.lang.startsWith(langCode)) || voices[0];
   };
 
-  // 🔊 Speak Function
   const speak = useCallback(
-    (rawText, forcedLang = null) => {
-      if (!rawText) return;
+    (rawText) => {
+      if (!synth || !rawText) return;
 
-      const text = cleanTextForSpeech(rawText);
-      if (!text) return;
+      synth.cancel(); // Reset any existing speech
+      const cleanedText = cleanTextForSpeech(rawText);
+      const lang = detectLanguage(cleanedText);
+      const voice = getProfessionalVoice(lang);
 
-      window.speechSynthesis.cancel();
+      // 🧩 THE FIX: Split by punctuation to prevent "fumbling"
+      // Includes Hindi Full Stop (।) and standard punctuation
+      const segments = cleanedText.match(/[^.!?।]+[.!?।]?/g) || [cleanedText];
 
-      const lang = forcedLang || detectLanguage(text);
-      const utterance = new SpeechSynthesisUtterance(text);
-      const voice = getBestFemaleVoice(lang);
+      let currentSegment = 0;
 
-      if (voice) {
+      const speakNextSegment = () => {
+        if (currentSegment >= segments.length) {
+          setSpeaking(false);
+          return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(segments[currentSegment].trim());
         utterance.voice = voice;
-        utterance.lang = voice.lang;
-      }
+        utterance.lang = lang;
 
-      utterance.rate = 0.95;
-      utterance.pitch = 1.15;
-      utterance.volume = 1;
+        // 🎚️ Professional Studio Settings
+        utterance.rate = 1.0;  // Standard human speed
+        utterance.pitch = 1.0; // Natural tone (1.15 was too high/robotic)
+        utterance.volume = 1.0;
 
-      utterance.onstart = () => setSpeaking(true);
-      utterance.onend = () => setSpeaking(false);
+        utterance.onstart = () => setSpeaking(true);
+        utterance.onend = () => {
+          currentSegment++;
+          speakNextSegment();
+        };
 
-      window.speechSynthesis.speak(utterance);
+        utteranceRef.current = utterance;
+        synth.speak(utterance);
+      };
+
+      speakNextSegment();
     },
-    [voices]
+    [voices, synth]
   );
 
-  return { speak, speaking };
+  return { speak, speaking, cancel: () => synth?.cancel() };
 }
